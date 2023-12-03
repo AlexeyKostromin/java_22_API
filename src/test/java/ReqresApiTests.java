@@ -5,10 +5,10 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 
-public class ReqresApiTests {
+public class ReqresApiTests extends BaseTest {
 
     @Test
-    void successfulRegisterUser() {
+    void successfulRegisterUserTest() {
         final String authBody = "{ \"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\"}";
 
         given()
@@ -18,7 +18,7 @@ public class ReqresApiTests {
                 .body(authBody)
                 .contentType(ContentType.JSON)
                 .when()
-                .post("https://reqres.in/api/register")
+                .post("/register")
                 .then().log().status()
                 .log().body()
                 .statusCode(200)
@@ -26,14 +26,14 @@ public class ReqresApiTests {
     }
 
     @Test
-    void singleUserFound() {
+    void singleUserFoundTest() {
 
         given()
                 .log().uri()
                 .log().method()
                 .log().body()
                 .when()
-                .get("https://reqres.in/api/users/2")
+                .get("/users/2")
                 .then().log().status()
                 .log().body()
                 .statusCode(200)
@@ -41,28 +41,28 @@ public class ReqresApiTests {
     }
 
     @Test
-    void singleUserNotFound() {
+    void singleUserNotFoundTest() {
 
         given()
                 .log().uri()
                 .log().method()
                 .log().body()
                 .when()
-                .get("https://reqres.in/api/users/23")
+                .get("/users/23")
                 .then().log().status()
                 .log().body()
                 .statusCode(404);
     }
 
     @Test
-    void singleResourceFound() {
+    void singleResourceFoundTest() {
 
         given()
                 .log().uri()
                 .log().method()
                 .log().body()
                 .when()
-                .get("https://reqres.in/api/unlnown/2")
+                .get("unlnown/2")
                 .then().log().status()
                 .log().body()
                 .statusCode(200)
@@ -71,7 +71,7 @@ public class ReqresApiTests {
     }
 
     @Test
-    void successfulCreateUser() {
+    void successfulCreateUserTest() {
         final String authBody = "{ \"name\": \"Adrian Doe\", \"job\": \"C# developer\"}";
 
         given()
@@ -81,7 +81,7 @@ public class ReqresApiTests {
                 .body(authBody)
                 .contentType(ContentType.JSON)
                 .when()
-                .post("https://reqres.in/api/users")
+                .post("/users")
                 .then().log().status()
                 .log().body()
                 .statusCode(201)
@@ -91,14 +91,14 @@ public class ReqresApiTests {
 
 
     @Test
-    void delayedResponse() {
+    void delayedResponseTest() {
 
         given()
                 .log().uri()
                 .log().method()
                 .log().body()
                 .when()
-                .get("https://reqres.in/api/users?delay=3")
+                .get("/users?delay=3")
                 .then().log().status()
                 .log().body()
                 .statusCode(200)
