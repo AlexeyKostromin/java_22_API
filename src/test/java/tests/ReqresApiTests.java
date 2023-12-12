@@ -1,14 +1,22 @@
+package tests;
+
 import io.restassured.http.ContentType;
+import models.lombok.RegistrationBodyRequest;
+import models.lombok.RegistrationResponse;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static specs.RegistrationSpecification.registerRequestSpec;
+import static specs.RegistrationSpecification.registerResponseSpec;
 
 
 public class ReqresApiTests extends BaseTest {
 
     @Test
-    void successfulRegisterUserTest() {
+    void successfulRegisterUserTest1() {
         final String authBody = "{ \"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\"}";
 
         given()
@@ -23,6 +31,27 @@ public class ReqresApiTests extends BaseTest {
                 .log().body()
                 .statusCode(200)
                 .body("token", is("QpwL5tke4Pnpja7X4"));
+    }
+
+    @Test
+    void successfulRegisterUserTest() {
+        RegistrationBodyRequest registrationBody = new RegistrationBodyRequest();
+        registrationBody.setEmail("eve.holt@reqres.in");
+        registrationBody.setPassword("pistol");
+
+        RegistrationResponse response = step("Registration request", () -> {
+            return given()
+                    .spec(registerRequestSpec)
+                    .body(registrationBody)
+                    .when()
+                    .post("/register")
+                    .then()
+                    .spec(registerResponseSpec)
+                    .extract().as(RegistrationResponse.class);
+        });
+
+        step("Verify response", () -> assertEquals("QpwL5tke4Pnpja7X4", response.getToken()));
+
     }
 
     @Test
