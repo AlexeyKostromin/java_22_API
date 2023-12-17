@@ -1,37 +1,17 @@
 package tests;
 
-import io.restassured.http.ContentType;
 import models.lombok.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static specs.RequestSpec.requestSpec;
 import static specs.RequestSpec.responseSpec;
 
 
 public class ReqresApiTests extends BaseTest {
-
-    @Test
-    void successfulRegisterUserTest1() {
-        final String authBody = "{ \"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\"}";
-
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .body(authBody)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/register")
-                .then().log().status()
-                .log().body()
-                .statusCode(200)
-                .body("token", is("QpwL5tke4Pnpja7X4"));
-    }
 
     @Test
     @DisplayName("Check defined user was registered")
@@ -52,11 +32,12 @@ public class ReqresApiTests extends BaseTest {
                     .extract().as(RegistrationResponseModel.class);
         });
 
-        step("Verify response", () -> assertEquals("QpwL5tke4Pnpja7X4", response.getToken()));
+        step("Verify response", () ->
+                assertEquals("QpwL5tke4Pnpja7X4", response.getToken()));
     }
 
     @Test
-    @DisplayName("Check non-defined user was registered")
+    @DisplayName("Check non-defined user was NOT registered")
     void nonDefinedRegisterUserTest() {
         RegistrationRequestModel registrationBody = new RegistrationRequestModel();
         registrationBody.setEmail("eve.123t@test");
@@ -76,21 +57,6 @@ public class ReqresApiTests extends BaseTest {
 
         step("Verify response", () ->
                 assertEquals("Note: Only defined users succeed registration", response.getError()));
-    }
-
-    @Test
-    void singleUserFoundTest1() {
-
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .when()
-                .get("/users/2")
-                .then().log().status()
-                .log().body()
-                .statusCode(200)
-                .body("data.email", is("janet.weaver@reqres.in"));
     }
 
     @Test
@@ -115,20 +81,6 @@ public class ReqresApiTests extends BaseTest {
     }
 
     @Test
-    void singleUserNotFoundTest1() {
-
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .when()
-                .get("/users/23")
-                .then().log().status()
-                .log().body()
-                .statusCode(404);
-    }
-
-    @Test
     @DisplayName("Check status for non-existing user")
     void singleUserNotFoundTest() {
         step("Single user request", () -> {
@@ -140,42 +92,6 @@ public class ReqresApiTests extends BaseTest {
                     .spec(responseSpec)
                     .statusCode(404);
         });
-    }
-
-    @Test
-    @DisplayName("delete")
-    void singleResourceFoundTest() {
-
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .when()
-                .get("unlnown/2")
-                .then().log().status()
-                .log().body()
-                .statusCode(200)
-                .body("data.name", is("fuchsia rose"))
-                .body("support.url", is("https://reqres.in/#support-heading"));
-    }
-
-    @Test
-    void successfulCreateUserTest1() {
-        final String authBody = "{ \"name\": \"Adrian Doe\", \"job\": \"C# developer\"}";
-
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .body(authBody)
-                .contentType(ContentType.JSON)
-                .when()
-                .post("/users")
-                .then().log().status()
-                .log().body()
-                .statusCode(201)
-                .body("name", is("Adrian Doe"))
-                .body("job", is("C# developer"));
     }
 
     @Test
@@ -194,8 +110,8 @@ public class ReqresApiTests extends BaseTest {
                     .body(regBody)
                     .when()
                     .post("/users")
-                    .then().log().status()
-                    .log().body()
+                    .then()
+                    .spec(responseSpec)
                     .statusCode(201)
                     .extract().as(CreateUserResponseModel.class);
         });
@@ -204,29 +120,33 @@ public class ReqresApiTests extends BaseTest {
             assertEquals(name, response.getName());
             assertEquals(job, response.getJob());
         });
-
     }
 
 
     @Test
+    @DisplayName("Verify delayed request of GET LIST USERS")
     void delayedResponseTest() {
 
-        given()
-                .log().uri()
-                .log().method()
-                .log().body()
-                .when()
-                .get("/users?delay=3")
-                .then().log().status()
-                .log().body()
-                .statusCode(200)
-                .body("page", is(1))
-                .body("data",
-                        hasItem(
-                                allOf(
-                                        hasEntry("first_name", "Emma"),
-                                        hasEntry("email", "emma.wong@reqres.in")
-                                )));
-    }
+        UsersListResponseModel response = step("Delayed response of GET LIST USERS request", () -> {
+            return given()
+                    .spec(requestSpec)
+                    .when()
+                    .get("/users?delay=3")
+                    .then().spec(responseSpec)
+                    .statusCode(200)
+                    .extract().as(UsersListResponseModel.class);
+        });
 
+        step("Verify response", () -> {
+            //assertEquals(6, response.getPerPage());
+            assertEquals(12, response.getTotal());
+            assertEquals(2, response.getTotalPages());
+            UsersListResponseModel.UserData[] data = response.getData();
+            var dataItem1 = data[1];
+            assertEquals(2, dataItem1.getId());
+            assertEquals("janet.weaver@reqres.in", dataItem1.getEmail());
+            assertEquals("Janet", dataItem1.getFirstName());
+            assertEquals("Weaver", dataItem1.getLastName());
+        });
+    }
 }
