@@ -7,7 +7,7 @@ import lombok.Data;
 public class UsersListResponseModel {
     String page;
     @JsonProperty("per_page")
-    String perPage;
+    int perPage;
     int total;
     @JsonProperty("total_pages")
     int totalPages;

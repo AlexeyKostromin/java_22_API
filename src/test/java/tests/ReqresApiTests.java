@@ -122,7 +122,6 @@ public class ReqresApiTests extends BaseTest {
         });
     }
 
-
     @Test
     @DisplayName("Verify delayed request of GET LIST USERS")
     void delayedResponseTest() {
@@ -138,7 +137,7 @@ public class ReqresApiTests extends BaseTest {
         });
 
         step("Verify response", () -> {
-            //assertEquals(6, response.getPerPage());
+            assertEquals(6, response.getPerPage());
             assertEquals(12, response.getTotal());
             assertEquals(2, response.getTotalPages());
             UsersListResponseModel.UserData[] data = response.getData();
