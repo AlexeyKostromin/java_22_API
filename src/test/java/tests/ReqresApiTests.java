@@ -1,6 +1,6 @@
 package tests;
 
-import models.lombok.*;
+import models.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,11 +16,11 @@ public class ReqresApiTests extends BaseTest {
     @Test
     @DisplayName("Check defined user was registered")
     void definedRegisterUserTest() {
-        RegistrationRequestModel registrationBody = new RegistrationRequestModel();
+        UserRegistrationRequestModel registrationBody = new UserRegistrationRequestModel();
         registrationBody.setEmail("eve.holt@reqres.in");
         registrationBody.setPassword("pistol");
 
-        RegistrationResponseModel response = step("Registration request", () -> {
+        UserRegistrationResponseModel response = step("Registration request", () -> {
             return given()
                     .spec(requestSpec)
                     .body(registrationBody)
@@ -29,7 +29,7 @@ public class ReqresApiTests extends BaseTest {
                     .then()
                     .spec(responseSpec)
                     .statusCode(200)
-                    .extract().as(RegistrationResponseModel.class);
+                    .extract().as(UserRegistrationResponseModel.class);
         });
 
         step("Verify response", () ->
@@ -39,11 +39,11 @@ public class ReqresApiTests extends BaseTest {
     @Test
     @DisplayName("Check non-defined user was NOT registered")
     void nonDefinedRegisterUserTest() {
-        RegistrationRequestModel registrationBody = new RegistrationRequestModel();
+        UserRegistrationRequestModel registrationBody = new UserRegistrationRequestModel();
         registrationBody.setEmail("eve.123t@test");
         registrationBody.setPassword("pistol-non-1");
 
-        RegistrationFailedResponseModel response = step("Registration request", () -> {
+        UserRegistrationFailedResponseModel response = step("Registration request", () -> {
             return given()
                     .spec(requestSpec)
                     .body(registrationBody)
@@ -52,7 +52,7 @@ public class ReqresApiTests extends BaseTest {
                     .then()
                     .spec(responseSpec)
                     .statusCode(400)
-                    .extract().as(RegistrationFailedResponseModel.class);
+                    .extract().as(UserRegistrationFailedResponseModel.class);
         });
 
         step("Verify response", () ->
@@ -100,11 +100,11 @@ public class ReqresApiTests extends BaseTest {
         final String name = "Adrian Doe Jr";
         final String job = "Java developer";
 
-        CreateUserRequestModel regBody = new CreateUserRequestModel();
+        UserCreateRequestModel regBody = new UserCreateRequestModel();
         regBody.setName(name);
         regBody.setJob(job);
 
-        CreateUserResponseModel response = step("Single user request", () -> {
+        UserCreateResponseModel response = step("Single user request", () -> {
             return given()
                     .spec(requestSpec)
                     .body(regBody)
@@ -113,7 +113,7 @@ public class ReqresApiTests extends BaseTest {
                     .then()
                     .spec(responseSpec)
                     .statusCode(201)
-                    .extract().as(CreateUserResponseModel.class);
+                    .extract().as(UserCreateResponseModel.class);
         });
 
         step("Verify response", () -> {

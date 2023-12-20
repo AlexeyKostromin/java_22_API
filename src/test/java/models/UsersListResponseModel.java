@@ -1,18 +1,19 @@
-package models.lombok;
+package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UsersListResponseModel {
-    String page;
+
     @JsonProperty("per_page")
     int perPage;
     int total;
     @JsonProperty("total_pages")
     int totalPages;
-    UserData [] data;
-    Support support;
+    UserData[] data;
 
     @Data
     public static class UserData {
@@ -25,8 +26,4 @@ public class UsersListResponseModel {
         String avatar;
     }
 
-    @Data
-    public static class Support {
-        String url, text;
-    }
 }
